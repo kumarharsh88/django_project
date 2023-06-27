@@ -41,5 +41,32 @@ class BlogView(APIView):
             return Response({"msg":"user with id {} not exist".format(id)})
         serializer=UserSerializer(user)
         return Response(serializer.data.get("blogs"))
+    
+    def patch(self,request,id):
+        user=User.objects.filter(id=id).first()
+        if(not user):
+            return Response({"msg":"user with id {} not exist".format(id)})
+        else:
+            blog_id=request.data.get("blog_id")
+            blog=Blog.objects.filter(id=blog_id).first()
+            serializer=BlogSerializer(blog,request.data,partial=True)
+            if(serializer.is_valid()):
+                serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors)
+    
+    def delete(self,request,id):
+        user=User.objects.filter(id=id).first()
+        if(not user):
+            return Response({"msg":"user with id {} not exist".format(id)})
+        else:
+            blog_id=request.data.get("blog_id")
+            blog=Blog.objects.filter(id=blog_id).first()
+            if(blog):
+                blog.delete()
+                return Response({"msg":"blog of user {} with blog_id {} is deleted".format(id,blog_id)})
+            else :
+                return Response({"msg":"blog not present"})
 
         
